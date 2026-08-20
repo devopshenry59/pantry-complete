@@ -32,7 +32,7 @@
                     <input th:hidden="${recipe.image != null}" type="file" name="file" class="form-control" />
                     <button th:hidden="${recipe.image != null}" class="btn btn-outline-success" type="submit" formaction="upload-image" formenctype="multipart/form-data">Upload Image</button>
                     <div th:hidden="${recipe.image == null}" class="form-control vstack gap-1">
-                        <img th:hidden="${recipe.image == null}" th:src="@{'/images/' + ${recipe.image}}" class="img-thumbnail w-25">
+                        <img th:hidden="${recipe.image == null}" th:src="@{'/uploads/' + ${recipe.image}}" class="img-thumbnail w-25">
                         <button th:hidden="${recipe.image == null}" class="btn btn-outline-danger w-25" type="button" data-bs-toggle="modal" data-bs-target="#deleteImageModal">Delete Image</button>
                     </div>
                 </div>
@@ -45,14 +45,14 @@
 
         <div class="container py-3">
             <h3>Ingredients</h3>
-                <div class="row">
-                    <div class="col">
+                <div class="row g-3">
+                    <div class="col-12 col-md-6 col-xl-3">
                         <div class="input-group">
                             <span class="input-group-text">Amount</span>
                             <input class="form-control" size="8" name="amount" />
                         </div>
                     </div>
-                    <div class="col">
+                    <div class="col-12 col-md-6 col-xl-3">
                         <div class="input-group">
                             <label class="input-group-text" for="unitSelect">Unit</label>
                             <select class="form-select" id="unitSelect" name="unitId">
@@ -62,7 +62,7 @@
                             <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#newUnitModal">New</button>
                         </div>
                     </div>
-                    <div class="col-md-auto">
+                    <div class="col-12 col-xl-4">
                         <div class="input-group">
                             <label class="input-group-text" for="ingredientSelect">Ingredient</i></label>
                             <select class="form-select" id="ingredientSelect" name="ingredientId">
@@ -72,8 +72,8 @@
                             <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#newIngredientModal">New</button>
                         </div>
                     </div>
-                    <div class="col">
-                        <button class="btn btn-primary" type="submit" formaction="add-ingredient">Add</button>
+                    <div class="col-12 col-xl-2 d-grid">
+                        <button class="btn btn-primary" type="submit" formaction="add-ingredient">Add Ingredient</button>
                     </div>
                 </div>
             </form>
@@ -98,14 +98,14 @@
                                         <form action="edit-ingredient" method="post" th:id="'editIngredient-' + ${rowStat.index}">
                                             <input type="hidden" name="recipeIngredientId" th:value="${recipeIngredient.id}" />
                                             <input type="hidden" name="recipeId" th:value="${recipe.id}" />
-                                            <div class="row">
-                                                <div class="col">
+                                            <div class="row g-3">
+                                                <div class="col-12 col-md-4">
                                                     <div class="input-group">
                                                         <span class="input-group-text">Amount</span>
                                                         <input class="form-control" size="8" name="amount" th:value="${recipeIngredient.amount}" />
                                                     </div>
                                                 </div>
-                                                <div class="col">
+                                                <div class="col-12 col-md-4">
                                                     <div class="input-group">
                                                         <label class="input-group-text" for="unitSel">Unit</label>
                                                         <select class="form-select" id="unitSel" name="unitId">
@@ -114,7 +114,7 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-auto">
+                                                <div class="col-12 col-md-4">
                                                     <div class="input-group">
                                                         <label class="input-group-text" for="ingredientSel">Ingredient</i></label>
                                                         <select class="form-select" id="ingredientSel" name="ingredientId">
@@ -179,6 +179,33 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" form="newIngredient" class="btn btn-primary">Add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Unit Modal -->
+        <div class="modal fade" id="newUnitModal" tabindex="-1" aria-labelledby="newUnitModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newUnitModalLabel">New Unit</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <form action="new-unit" method="post" id="newUnit">
+                                <input type="hidden" name="recipeId" th:value="${recipe.id}" />
+                                <div class="input-group">
+                                    <span class="input-group-text">Name</span>
+                                    <input class="form-control" placeholder="enter name" th:field="${unit.name}" />
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" form="newUnit" class="btn btn-primary">Add</button>
                     </div>
                 </div>
             </div>

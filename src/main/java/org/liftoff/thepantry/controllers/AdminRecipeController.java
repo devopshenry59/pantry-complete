@@ -1,28 +1,32 @@
 package org.liftoff.thepantry.controllers;
 
-import org.liftoff.thepantry.data.*;
+import org.liftoff.thepantry.data.FavoriteRepository;
+import org.liftoff.thepantry.data.IngredientRepository;
+import org.liftoff.thepantry.data.RecipeIngredientRepository;
+import org.liftoff.thepantry.data.RecipeRepository;
+import org.liftoff.thepantry.data.UnitRepository;
 import org.liftoff.thepantry.models.Ingredient;
 import org.liftoff.thepantry.models.Recipe;
 import org.liftoff.thepantry.models.RecipeIngredient;
 import org.liftoff.thepantry.models.Unit;
+import org.liftoff.thepantry.services.RecipeImageStorageService;
+import org.liftoff.thepantry.services.QuantityNormalizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,11 +47,13 @@ public class AdminRecipeController {
     private UnitRepository unitRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private FavoriteRepository favoriteRepository;
 
-    // display/add/delete/edit/save recipe
+    @Autowired
+    private RecipeImageStorageService recipeImageStorageService;
 
-
+    @Autowired
+    private QuantityNormalizationService quantityNormalizationService;
 
     @GetMapping("")
     public String index(Model model) {
@@ -58,7 +64,6 @@ public class AdminRecipeController {
 
     @PostMapping("add-recipe")
     public String addRecipe(Model model, @ModelAttribute @Valid Recipe newRecipe, Errors errors, RedirectAttributes ra) {
-        // error checking
         if (errors.hasErrors()) {
             model.addAttribute("recipes", recipeRepository.findAll(Sort.by(Sort.Direction.ASC, "name")));
             return "admin/recipes/index";
@@ -69,26 +74,32 @@ public class AdminRecipeController {
             return "redirect:/admin/recipes/";
         }
 
-        // save recipe
         recipeRepository.save(newRecipe);
-        int recipeId = newRecipe.getId();
-        return "redirect:/admin/recipes/edit/" + recipeId;
+        return "redirect:/admin/recipes/edit/" + newRecipe.getId();
     }
 
     @PostMapping("delete-recipe")
     public String deleteRecipe(@RequestParam int recipeId, RedirectAttributes ra) {
-        Optional optRecipe = recipeRepository.findById(recipeId);
-        Recipe recipe = (Recipe) optRecipe.get();
+        Optional<Recipe> optRecipe = recipeRepository.findById(recipeId);
+        if (optRecipe.isEmpty()) {
+            ra.addFlashAttribute("class", "alert alert-danger");
+            ra.addFlashAttribute("message", "Recipe not found.");
+            return "redirect:/admin/recipes/";
+        }
 
-        // delete recipe ingredients
-        List recipeIngredients = recipeIngredientRepository.findByRecipeId(recipeId);
+        Recipe recipe = optRecipe.get();
+        favoriteRepository.deleteAll(favoriteRepository.findByRecipe_Id(recipeId));
+        List<RecipeIngredient> recipeIngredients = recipeIngredientRepository.findByRecipeId(recipeId);
         recipeIngredientRepository.deleteAll(recipeIngredients);
 
-        // delete image
-        File file = new File("./src/main/resources/static/images/" + recipe.getImage());
-        file.delete();
+        try {
+            recipeImageStorageService.delete(recipe.getImage());
+        } catch (IOException e) {
+            ra.addFlashAttribute("class", "alert alert-danger");
+            ra.addFlashAttribute("message", "Recipe image could not be deleted.");
+            return "redirect:/admin/recipes/";
+        }
 
-        // delete recipe
         recipeRepository.deleteById(recipeId);
 
         ra.addFlashAttribute("class", "alert alert-success");
@@ -98,74 +109,69 @@ public class AdminRecipeController {
 
     @GetMapping("edit/{recipeId}")
     public String editRecipe(Model model, @PathVariable int recipeId) {
-        Optional optRecipe = recipeRepository.findById(recipeId);
-        Recipe recipe = (Recipe) optRecipe.get();
+        Optional<Recipe> optRecipe = recipeRepository.findById(recipeId);
+        Recipe recipe = optRecipe.get();
         model.addAttribute("recipe", recipe);
         model.addAttribute("units", unitRepository.findAll(Sort.by(Sort.Direction.ASC, "name")));
         model.addAttribute("ingredients", ingredientRepository.findAll(Sort.by(Sort.Direction.ASC, "name")));
         model.addAttribute("recipeIngredients", recipeIngredientRepository.findByRecipeId(recipeId));
         model.addAttribute(new RecipeIngredient());
         model.addAttribute(new Ingredient());
+        model.addAttribute(new Unit());
         return "admin/recipes/edit";
     }
 
     @PostMapping("edit/save-recipe")
-    public String saveRecipe(@ModelAttribute Recipe recipe, @RequestParam int recipeId, Model model, Errors errors, RedirectAttributes ra) {
-        // error checking
+    public String saveRecipe(@ModelAttribute Recipe recipe, @RequestParam int recipeId, Errors errors, RedirectAttributes ra) {
         if (errors.hasErrors()) {
             return "redirect:" + recipeId + "#message";
         }
 
-        // save recipe
-        recipe.setId(recipeId);
-        recipeRepository.save(recipe);
+        Optional<Recipe> optRecipe = recipeRepository.findById(recipeId);
+        if (optRecipe.isEmpty()) {
+            ra.addFlashAttribute("class", "alert alert-danger");
+            ra.addFlashAttribute("message", "Recipe not found.");
+            return "redirect:/admin/recipes/";
+        }
+
+        Recipe existingRecipe = optRecipe.get();
+        existingRecipe.setName(recipe.getName());
+        existingRecipe.setDescription(recipe.getDescription());
+        existingRecipe.setInstructions(recipe.getInstructions());
+        existingRecipe.setImage(recipe.getImage());
+        recipeRepository.save(existingRecipe);
 
         ra.addFlashAttribute("class", "alert alert-success");
-        ra.addFlashAttribute("message", "Recipe '" + recipe.getName() + "' updated successfully");
+        ra.addFlashAttribute("message", "Recipe '" + existingRecipe.getName() + "' updated successfully");
         return "redirect:" + recipeId + "#message";
     }
 
-    // add/edit/delete recipe ingredients
-
     @PostMapping("edit/add-ingredient")
-    public String addIngredient(@ModelAttribute Recipe recipe, @ModelAttribute RecipeIngredient newRecipeIngredient, @RequestParam String amount, @RequestParam int ingredientId, @RequestParam int recipeId, @RequestParam int unitId, Errors errors, Model model, RedirectAttributes ra) {
-        // save recipe
-        recipe.setId(recipeId);
-        recipeRepository.save(recipe);
-
-        // error checking
-        if (ingredientId==0) {
+    public String addIngredient(@ModelAttribute RecipeIngredient newRecipeIngredient, @RequestParam String amount, @RequestParam int ingredientId, @RequestParam int recipeId, @RequestParam int unitId, RedirectAttributes ra) {
+        if (ingredientId == 0) {
             ra.addFlashAttribute("class", "alert alert-danger");
             ra.addFlashAttribute("message", "Ingredient is required.");
             return "redirect:" + recipeId + "#message";
         }
         if (!recipeIngredientRepository.findByRecipeIdAndIngredientId(recipeId, ingredientId).isEmpty()) {
             Optional<Ingredient> optIngredient = ingredientRepository.findById(ingredientId);
-            Ingredient ingredient = optIngredient.get();
             ra.addFlashAttribute("class", "alert alert-danger");
             ra.addFlashAttribute("message", "Recipe ingredient '" + optIngredient.get().getName() + "' already exists.");
             return "redirect:" + recipeId + "#message";
         }
 
-        // set recipe ingredient
         Optional<Recipe> optRecipe = recipeRepository.findById(recipeId);
-        if(optRecipe.isPresent()) {
-            Recipe recipeSelected = optRecipe.get();
-            newRecipeIngredient.setRecipe(recipeSelected);
+        if (optRecipe.isPresent()) {
+            newRecipeIngredient.setRecipe(optRecipe.get());
         }
         Optional<Unit> optUnit = unitRepository.findById(unitId);
-        if(optUnit.isPresent()) {
-            Unit unit = optUnit.get();
-            newRecipeIngredient.setUnit(unit);
-        }
+        optUnit.ifPresent(newRecipeIngredient::setUnit);
         Optional<Ingredient> optIngredient = ingredientRepository.findById(ingredientId);
-        if(optIngredient.isPresent()) {
-            Ingredient ingredient = optIngredient.get();
-            newRecipeIngredient.setIngredient(ingredient);
-        }
+        optIngredient.ifPresent(newRecipeIngredient::setIngredient);
         newRecipeIngredient.setAmount(amount);
+        quantityNormalizationService.normalize(amount, newRecipeIngredient.getUnit())
+                .ifPresent(quantity -> newRecipeIngredient.setNormalizedAmount(quantity.getAmount()));
 
-        // save ingredient
         recipeIngredientRepository.save(newRecipeIngredient);
 
         ra.addFlashAttribute("class", "alert alert-success");
@@ -174,44 +180,31 @@ public class AdminRecipeController {
     }
 
     @PostMapping("edit/edit-ingredient")
-    public String editIngredient(@ModelAttribute RecipeIngredient recipeIngredient, @RequestParam int recipeIngredientId, @RequestParam String amount, @RequestParam int ingredientId, @RequestParam int recipeId, @RequestParam int unitId, Errors errors, Model model, RedirectAttributes ra) {
-        // error checking
-        if (ingredientId==0) {
+    public String editIngredient(@ModelAttribute RecipeIngredient recipeIngredient, @RequestParam int recipeIngredientId, @RequestParam String amount, @RequestParam int ingredientId, @RequestParam int recipeId, @RequestParam int unitId, RedirectAttributes ra) {
+        if (ingredientId == 0) {
             ra.addFlashAttribute("class", "alert alert-danger");
             ra.addFlashAttribute("message", "Ingredient is required.");
             return "redirect:" + recipeId + "#message";
         }
-        if (!recipeIngredientRepository.findByRecipeIdAndIngredientId(recipeId, ingredientId).isEmpty()) {
-            if (recipeIngredientRepository.findByIdAndIngredientId(recipeIngredientId, ingredientId).isEmpty()) {
-                Optional<Ingredient> optIngredient = ingredientRepository.findById(ingredientId);
-                Ingredient ingredient = optIngredient.get();
-                ra.addFlashAttribute("class", "alert alert-danger");
-                ra.addFlashAttribute("message", "Recipe ingredient '" + optIngredient.get().getName() + "' already exists.");
-                return "redirect:" + recipeId + "#message";
-            }
+        if (!recipeIngredientRepository.findByRecipeIdAndIngredientId(recipeId, ingredientId).isEmpty() && recipeIngredientRepository.findByIdAndIngredientId(recipeIngredientId, ingredientId).isEmpty()) {
+            Optional<Ingredient> optIngredient = ingredientRepository.findById(ingredientId);
+            ra.addFlashAttribute("class", "alert alert-danger");
+            ra.addFlashAttribute("message", "Recipe ingredient '" + optIngredient.get().getName() + "' already exists.");
+            return "redirect:" + recipeId + "#message";
         }
 
-        // set recipe ingredient
         Optional<Recipe> optRecipe = recipeRepository.findById(recipeId);
-        if(optRecipe.isPresent()) {
-            Recipe recipe = optRecipe.get();
-            recipeIngredient.setRecipe(recipe);
-        }
+        optRecipe.ifPresent(recipeIngredient::setRecipe);
         Optional<Unit> optUnit = unitRepository.findById(unitId);
-        if(optUnit.isPresent()) {
-            Unit unit = optUnit.get();
-            recipeIngredient.setUnit(unit);
-        }
+        optUnit.ifPresent(recipeIngredient::setUnit);
         Optional<Ingredient> optIngredient = ingredientRepository.findById(ingredientId);
-        if(optIngredient.isPresent()) {
-            Ingredient ingredient = optIngredient.get();
-            recipeIngredient.setIngredient(ingredient);
-        }
+        optIngredient.ifPresent(recipeIngredient::setIngredient);
         recipeIngredient.setAmount(amount);
-
-        // save recipe ingredient
+        quantityNormalizationService.normalize(amount, recipeIngredient.getUnit())
+                .ifPresent(quantity -> recipeIngredient.setNormalizedAmount(quantity.getAmount()));
         recipeIngredient.setId(recipeIngredientId);
         recipeIngredientRepository.save(recipeIngredient);
+
         ra.addFlashAttribute("class", "alert alert-success");
         ra.addFlashAttribute("message", "Recipe ingredient '" + optIngredient.get().getName() + "' saved successfully.");
         return "redirect:" + recipeId + "#message";
@@ -221,8 +214,6 @@ public class AdminRecipeController {
     public String deleteRecipeIngredient(@RequestParam int recipeId, @RequestParam int recipeIngredientId, RedirectAttributes ra) {
         Optional<RecipeIngredient> optRecipeIngredient = recipeIngredientRepository.findById(recipeIngredientId);
         RecipeIngredient recipeIngredient = optRecipeIngredient.get();
-
-        // delete recipe ingredient
         recipeIngredientRepository.deleteById(recipeIngredientId);
 
         ra.addFlashAttribute("class", "alert alert-success");
@@ -230,11 +221,8 @@ public class AdminRecipeController {
         return "redirect:" + recipeId + "#message";
     }
 
-    // add new ingredient to list of ingredients
-
     @PostMapping("edit/new-ingredient")
-    public String newIngredient(@ModelAttribute @Valid Ingredient newIngredient, Errors errors, Model model, @RequestParam int recipeId, RedirectAttributes ra) {
-        // error checking
+    public String newIngredient(@ModelAttribute @Valid Ingredient newIngredient, Errors errors, @RequestParam int recipeId, RedirectAttributes ra) {
         if (errors.hasErrors()) {
             ra.addFlashAttribute("class", "alert alert-danger");
             ra.addFlashAttribute("message", "Name is required for new ingredient.");
@@ -246,7 +234,6 @@ public class AdminRecipeController {
             return "redirect:" + recipeId + "#message";
         }
 
-        // save new ingredient
         ingredientRepository.save(newIngredient);
 
         ra.addFlashAttribute("class", "alert alert-success");
@@ -254,70 +241,69 @@ public class AdminRecipeController {
         return "redirect:" + recipeId + "#message";
     }
 
-    // upload image file
+    @PostMapping("edit/new-unit")
+    public String newUnit(@ModelAttribute @Valid Unit newUnit, Errors errors, @RequestParam int recipeId, RedirectAttributes ra) {
+        if (errors.hasErrors()) {
+            ra.addFlashAttribute("class", "alert alert-danger");
+            ra.addFlashAttribute("message", "Name is required for new unit.");
+            return "redirect:" + recipeId + "#message";
+        }
+        if (!unitRepository.findByName(newUnit.getName()).isEmpty()) {
+            ra.addFlashAttribute("class", "alert alert-danger");
+            ra.addFlashAttribute("message", "Unit '" + newUnit.getName() + "' already exists.");
+            return "redirect:" + recipeId + "#message";
+        }
+
+        unitRepository.save(newUnit);
+
+        ra.addFlashAttribute("class", "alert alert-success");
+        ra.addFlashAttribute("message", "Unit '" + newUnit.getName() + "' added successfully.");
+        return "redirect:" + recipeId + "#message";
+    }
 
     @PostMapping("edit/upload-image")
-    public String uploadImage(@ModelAttribute Recipe recipe, @RequestParam int recipeId, @RequestParam("file") MultipartFile file, RedirectAttributes ra, Exception exception)  {
-        // save recipe
-        recipe.setId(recipeId);
-        recipeRepository.save(recipe);
-
-        // error checking
-        if (file.isEmpty()) {
+    public String uploadImage(@RequestParam int recipeId, @RequestParam("file") MultipartFile file, RedirectAttributes ra) {
+        Optional<Recipe> optRecipe = recipeRepository.findById(recipeId);
+        if (optRecipe.isEmpty()) {
             ra.addFlashAttribute("class", "alert alert-danger");
-            ra.addFlashAttribute("message", "Please select an image to upload.");
-            return "redirect:" + recipeId + "#message";
-        }
-        if (exception instanceof MaxUploadSizeExceededException) {
-            ra.addFlashAttribute("class", "alert alert-danger");
-            ra.addFlashAttribute("message", "Max file size exceeded.");
-            return "redirect:" + recipeId + "#message";
+            ra.addFlashAttribute("message", "Recipe not found.");
+            return "redirect:/admin/recipes/";
         }
 
-        // normalize the file path
-        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-
-        // upload image
+        Recipe recipe = optRecipe.get();
         try {
-            Path pathToImages = Paths.get("./src/main/resources/static/images");
-            if (!Files.exists(pathToImages)) {
-                Files.createDirectory(pathToImages);
-            }
-            Path path = Paths.get(pathToImages + "/" + fileName);
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // save image name to db
-        if(fileName!=null || fileName != "") {
+            String fileName = recipeImageStorageService.store(file);
             recipe.setImage(fileName);
             recipeRepository.save(recipe);
             ra.addFlashAttribute("class", "alert alert-success");
-            ra.addFlashAttribute("message", "Image '" + fileName + "' uploaded successfully.");
-            return "redirect:" + recipeId + "#message";
+            ra.addFlashAttribute("message", "Image uploaded successfully.");
+        } catch (IllegalArgumentException e) {
+            ra.addFlashAttribute("class", "alert alert-danger");
+            ra.addFlashAttribute("message", e.getMessage());
+        } catch (IOException e) {
+            ra.addFlashAttribute("class", "alert alert-danger");
+            ra.addFlashAttribute("message", "There was an issue with processing image.");
         }
-
-        ra.addFlashAttribute("class", "alert alert-success");
-        ra.addFlashAttribute("message", "There was an issue with processing image.");
         return "redirect:" + recipeId + "#message";
     }
 
     @PostMapping("edit/delete-image")
-    public String deleteImage(@ModelAttribute Recipe recipe, @RequestParam int recipeId, RedirectAttributes ra) {
-        // save recipe
-        recipe.setId(recipeId);
-        recipeRepository.save(recipe);
+    public String deleteImage(@RequestParam int recipeId, RedirectAttributes ra) {
+        Optional<Recipe> optRecipe = recipeRepository.findById(recipeId);
+        if (optRecipe.isEmpty()) {
+            ra.addFlashAttribute("class", "alert alert-danger");
+            ra.addFlashAttribute("message", "Recipe not found.");
+            return "redirect:/admin/recipes/";
+        }
 
-        // delete image
+        Recipe recipe = optRecipe.get();
         try {
-            File file = new File("./src/main/resources/static/images/" + recipe.getImage());
-            file.delete();
+            recipeImageStorageService.delete(recipe.getImage());
             recipe.setImage(null);
             recipeRepository.save(recipe);
             ra.addFlashAttribute("class", "alert alert-success");
             ra.addFlashAttribute("message", "Image deleted successfully.");
-        }  catch(Exception e)  {
+        } catch (Exception e) {
             ra.addFlashAttribute("class", "alert alert-danger");
             ra.addFlashAttribute("message", "Image delete failed.");
         }

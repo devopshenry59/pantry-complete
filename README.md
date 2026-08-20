@@ -1,5 +1,5 @@
 # the-pantry
-The Pantry Sanity Project: A comprehensive meal planner for indecisive people
+The Pantry Sanity Project: Find recipe inspiration from the food already in your pantry
 
 ## Team Members
 - Henry Lewis(Developer)

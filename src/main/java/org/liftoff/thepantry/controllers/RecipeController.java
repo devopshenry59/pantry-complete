@@ -1,8 +1,10 @@
 package org.liftoff.thepantry.controllers;
 
+import org.liftoff.thepantry.data.FavoriteRepository;
 import org.liftoff.thepantry.data.RecipeIngredientRepository;
 import org.liftoff.thepantry.data.RecipeRepository;
 import org.liftoff.thepantry.models.Recipe;
+import org.liftoff.thepantry.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -24,25 +27,39 @@ public class RecipeController {
     @Autowired
     RecipeIngredientRepository recipeIngredientRepository;
 
+    @Autowired
+    FavoriteRepository favoriteRepository;
+
+    @Autowired
+    AuthenticationController authenticationController;
+
     // display recipe
 
     @GetMapping("recipe/{recipeId}")
-    public String displayRecipe(Model model, @PathVariable int recipeId) {
+    public String displayRecipe(Model model, @PathVariable int recipeId, HttpSession session) {
         Optional optRecipe = recipeRepository.findById(recipeId);
         Recipe recipe = (Recipe) optRecipe.get();
         model.addAttribute("banner", "recipe");
         model.addAttribute("recipe", recipe);
         model.addAttribute("recipeIngredients", recipeIngredientRepository.findByRecipeId(recipeId));
+        addFavoriteState(model, session, recipeId);
         return "recipe";
     }
 
     @GetMapping("recipe/random")
-    public String displayRandomRecipe(Model model) {
+    public String displayRandomRecipe(Model model, HttpSession session) {
         Recipe recipe = recipeRepository.randomRecipe();
         model.addAttribute("banner", "recipe");
         model.addAttribute("recipe", recipe);
         model.addAttribute("recipeIngredients", recipeIngredientRepository.findByRecipeId(recipe.getId()));
+        addFavoriteState(model, session, recipe.getId());
         return "recipe";
+    }
+
+    private void addFavoriteState(Model model, HttpSession session, int recipeId) {
+        User user = authenticationController.getUserFromSession(session);
+        boolean favorite = user != null && favoriteRepository.existsByUser_IdAndRecipe_Id(user.getId(), recipeId);
+        model.addAttribute("isFavorite", favorite);
     }
 
     // display/search recipes

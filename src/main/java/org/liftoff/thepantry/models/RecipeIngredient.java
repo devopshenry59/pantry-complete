@@ -1,30 +1,33 @@
 package org.liftoff.thepantry.models;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotBlank;
+import javax.persistence.Column;
+import java.math.BigDecimal;
 
 @Entity
-public class RecipeIngredient {
+public class RecipeIngredient extends AbstractEntity {
 
-    @Id
-    @GeneratedValue
-    private int id;
-
+    @NotBlank
     private String amount;
 
+    @Column(precision = 19, scale = 6)
+    private BigDecimal normalizedAmount;
 
-    @OneToOne
-    @JoinColumn(name = "ingredient_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ingredient_id", nullable = false)
     private Ingredient ingredient;
 
-    @OneToOne
-    @JoinColumn(name = "unit_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unit_id")
     private Unit unit;
 
-    @OneToOne
-    @JoinColumn(name = "recipe_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipe_id", nullable = false)
     private Recipe recipe;
-
-
 
     public RecipeIngredient() {
     }
@@ -34,17 +37,6 @@ public class RecipeIngredient {
         this.recipe = recipe;
         this.ingredient = ingredient;
         this.unit = unit;
-
-    }
-
-    // getters and setters
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getAmount() {
@@ -53,6 +45,14 @@ public class RecipeIngredient {
 
     public void setAmount(String amount) {
         this.amount = amount;
+    }
+
+    public BigDecimal getNormalizedAmount() {
+        return normalizedAmount;
+    }
+
+    public void setNormalizedAmount(BigDecimal normalizedAmount) {
+        this.normalizedAmount = normalizedAmount;
     }
 
     public Ingredient getIngredient() {
@@ -78,6 +78,4 @@ public class RecipeIngredient {
     public void setRecipe(Recipe recipe) {
         this.recipe = recipe;
     }
-
-
 }

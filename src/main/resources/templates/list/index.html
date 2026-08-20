@@ -11,8 +11,13 @@
 <div class="container body-content py-3">
     <h1>Advanced Search Results</h1>
 
+    <p th:if="${message}" th:text="${message}" class="alert alert-info"></p>
+    <p th:if="${selectedIngredientCount != null and selectedIngredientCount > 0}" class="text-muted">
+        Showing recipes containing all <strong th:text="${selectedIngredientCount}"></strong> selected ingredients within the amounts you have.
+    </p>
     <p th:unless="${recipes} and ${recipes.size()}">No recipes found!</p>
-    <table id="recipetable" class="table table-striped">
+    <div class="table-responsive">
+    <table id="recipetable" class="table table-striped align-middle">
         <thead>
         <tr>
             <th class="col-1"></th>
@@ -22,12 +27,13 @@
         </thead>
         <tbody>
         <tr th:each="recipe:${recipes}">
-            <td><a th:href="@{'/recipe/' + ${recipe.id}}"><img th:src="@{'/images/' + ${recipe.image}}" class="rounded-circle" style="width:50px"></a></td>
+            <td><a th:href="@{'/recipe/' + ${recipe.id}}"><img th:src="@{'/uploads/' + ${recipe.image}}" class="rounded-circle" style="width:50px"></a></td>
             <td><a th:href="@{'/recipe/' + ${recipe.id}}" th:text="${recipe.name}" class="text-reset text-decoration-none fw-bolder"></a></td>
             <td th:text="${recipe.description}"></td>
         </tr>
         </tbody>
     </table>
+    </div>
 
     <script language="JavaScript">
         $(document).ready(function(){

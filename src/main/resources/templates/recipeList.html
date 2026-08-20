@@ -13,10 +13,13 @@
 
     <p th:if="${message}" th:text="${message}" th:class="${class}"></p>
 
-    <div class="row row-cols-4 g-4 pt-1">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4 pt-1">
         <div class="col" th:each="recipe : ${recipes}">
             <div class="card border shadow bg-white rounded h-100">
-                <a th:href="@{'/recipe/' + ${recipe.id}}"><img th:src="@{'/images/' + ${recipe.image}}" class="card-img-top"></a>
+                <a th:href="@{'/recipe/' + ${recipe.id}}" class="text-decoration-none">
+                    <img th:if="${recipe.image != null}" th:src="@{'/uploads/' + ${recipe.image}}" class="card-img-top recipe-card-image" th:alt="${recipe.name}">
+                    <div th:unless="${recipe.image != null}" class="recipe-card-placeholder"><i class="bi bi-image"></i></div>
+                </a>
                 <div class="card-body">
                     <h5 class="card-title"><a th:href="@{'/recipe/' + ${recipe.id}}" th:text="${recipe.name}" class="text-reset text-decoration-none fw-bolder"></a></h5>
                     <p class="card-text" th:text="${#strings.abbreviate(recipe.description,85)}"></p>

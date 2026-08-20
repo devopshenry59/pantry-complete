@@ -1,0 +1,102 @@
+[
+  {
+    "name": "Classic Guacamole", "description": "A bright, simple avocado dip with lime and salt.", "image": "seed-guacamole.webp",
+    "instructions": "Halve the avocados and remove the pits. Scoop the flesh into a bowl and mash to your preferred texture. Stir in the lime juice and salt, then serve immediately.",
+    "ingredients": [{"amount":"2","unit":null,"name":"ripe avocados"},{"amount":"1/2","unit":"teaspoon","name":"salt"},{"amount":"1","unit":null,"name":"lime"}]
+  },
+  {
+    "name": "Apple Pie", "description": "A classic double-crust pie filled with warmly spiced apples.", "image": "seed-apple-pie.webp",
+    "instructions": "Toss peeled, sliced apples with lemon juice, sugars, cinnamon, nutmeg, and cornstarch. Rest 15 minutes, then cook until the liquid reduces. Make a dough from flour, salt, sugar, cold butter, and ice water. Line a 9-inch pie pan, add filling, cover with the second crust, seal, and vent. Bake at 350 F for about 45 minutes, until browned and bubbling.",
+    "ingredients": [{"amount":"900","unit":"gram","name":"Golden Delicious apples"},{"amount":"1","unit":"tablespoon","name":"lemon juice"},{"amount":"115","unit":"gram","name":"sugar"},{"amount":"1","unit":"teaspoon","name":"cinnamon"},{"amount":"1/4","unit":"teaspoon","name":"nutmeg"},{"amount":"365","unit":"gram","name":"flour"},{"amount":"451","unit":"gram","name":"butter"},{"amount":"1","unit":null,"name":"egg"}]
+  },
+  {
+    "name": "Basic Waffles", "description": "Golden, lightly sweet waffles for an easy breakfast or dessert.", "image": "seed-basic-waffles.webp",
+    "instructions": "Beat the eggs until creamy. Gradually beat in sugar and vanilla, then melted butter and baking powder. Alternate adding milk and flour while mixing until smooth. Rest several minutes, then cook portions in a preheated waffle maker until golden.",
+    "ingredients": [{"amount":"250","unit":"gram","name":"butter"},{"amount":"200","unit":"gram","name":"sugar"},{"amount":"2","unit":"teaspoon","name":"vanilla extract"},{"amount":"5","unit":null,"name":"eggs"},{"amount":"500","unit":"gram","name":"flour"},{"amount":"2","unit":"tablespoon","name":"baking powder"},{"amount":"375","unit":"milliliter","name":"milk"}]
+  },
+  {
+    "name": "Bolognese Sauce", "description": "A slow-simmered Italian meat sauce with vegetables, wine, and tomato.", "image": "seed-bolognese-sauce.webp",
+    "instructions": "Finely dice the vegetables and pancetta and cook slowly in olive oil until soft. Add the meats and brown, then deglaze with wine. Stir in tomato paste and tomatoes. Simmer partially covered on very low heat for at least 4 hours, adding water if needed. Stir in milk for the final 10 minutes if desired.",
+    "ingredients": [{"amount":"2","unit":null,"name":"carrots"},{"amount":"2","unit":null,"name":"celery stalks"},{"amount":"1","unit":null,"name":"onion"},{"amount":"2","unit":"clove","name":"garlic"},{"amount":"200","unit":"gram","name":"pancetta"},{"amount":"300","unit":"gram","name":"ground beef"},{"amount":"700","unit":"gram","name":"ground pork"},{"amount":"140","unit":"gram","name":"tomato paste"},{"amount":"690","unit":"gram","name":"diced tomatoes"},{"amount":"1","unit":"cup","name":"wine"}]
+  },
+  {
+    "name": "Butter Chicken Masala", "description": "Tender chicken in a mild, creamy tomato and onion curry.", "image": "seed-butter-chicken-masala.webp",
+    "instructions": "Marinate chicken with ginger, garlic, chili, turmeric, lemon, salt, and pepper for 1 hour, then roast until nearly done. Saute onions in butter, add spices and tomato, and simmer until thick. Add chicken, cream, and fenugreek and cook through. Garnish with cilantro.",
+    "ingredients": [{"amount":"1/2","unit":"pound","name":"boneless chicken"},{"amount":"2","unit":"tablespoon","name":"butter"},{"amount":"2","unit":null,"name":"onions"},{"amount":"2","unit":null,"name":"tomatoes"},{"amount":"3","unit":"clove","name":"garlic"},{"amount":"1","unit":"tablespoon","name":"ginger"},{"amount":"1","unit":"tablespoon","name":"garam masala"},{"amount":"4","unit":"tablespoon","name":"cream"},{"amount":"1/4","unit":"tablespoon","name":"fenugreek leaves"}]
+  },
+  {
+    "name": "Cacio e Pepe", "description": "A minimalist Roman pasta of Pecorino Romano and black pepper.", "image": "seed-cacio-e-pepe.webp",
+    "instructions": "Boil spaghetti until a few minutes shy of done. Toast crushed peppercorns in a skillet and add the pasta with a little cooking water. Mix half the Pecorino with pasta water into a cream. Remove the skillet from direct heat, toss in the cheese cream, and serve with remaining cheese and pepper.",
+    "ingredients": [{"amount":"12","unit":"ounce","name":"spaghetti"},{"amount":"4","unit":"ounce","name":"Pecorino Romano"},{"amount":"2","unit":"teaspoon","name":"black peppercorns"}]
+  },
+  {
+    "name": "Ceviche", "description": "Fresh seafood cured in lime juice with thinly sliced red onion.", "image": "seed-ceviche.webp",
+    "instructions": "Soak thinly sliced onion briefly in cold water. Cube the fish and season with salt and pepper. Cover evenly with lime juice, add drained onion, and refrigerate for at least 1 hour. Use fish intended for raw preparation and follow local food-safety guidance.",
+    "ingredients": [{"amount":"1","unit":"pound","name":"sushi-grade white fish"},{"amount":"1","unit":null,"name":"red onion"},{"amount":"3/4","unit":"cup","name":"lime juice"},{"amount":"1","unit":"teaspoon","name":"salt"},{"amount":"1/2","unit":"teaspoon","name":"black pepper"}]
+  },
+  {
+    "name": "Chicken Pasta Casserole", "description": "A hearty baked pasta with chicken, tomato, mozzarella, and Parmesan.", "image": "seed-chicken-pasta-casserole.webp",
+    "instructions": "Heat the oven to 400 F. Saute diced chicken until fully cooked and boil pasta a few minutes less than package directions. Combine pasta, chicken, tomatoes, and mozzarella in a casserole dish. Top with Parmesan, breadcrumbs, and bits of butter, then bake 22 to 25 minutes until golden.",
+    "ingredients": [{"amount":"16","unit":"ounce","name":"macaroni"},{"amount":"24","unit":"ounce","name":"chicken breast"},{"amount":"9","unit":"ounce","name":"mozzarella cheese"},{"amount":"1.5","unit":"ounce","name":"Parmesan cheese"},{"amount":"1.5","unit":"ounce","name":"breadcrumbs"},{"amount":"16","unit":"ounce","name":"diced tomatoes"}]
+  },
+  {
+    "name": "Chocolate Chip Cookies", "description": "Soft-centered cookies packed with semisweet chocolate chips.", "image": "seed-chocolate-chip-cookies.webp",
+    "instructions": "Heat the oven to 375 F. Whisk flour, baking soda, and salt. Separately beat melted butter, sugars, egg, vanilla, and milk, then stir in the dry mixture and chocolate chips. Scoop onto a lined sheet and bake 8 to 10 minutes until the edges brown. Cool on a rack.",
+    "ingredients": [{"amount":"230","unit":"gram","name":"butter"},{"amount":"330","unit":"gram","name":"bread flour"},{"amount":"5","unit":"gram","name":"baking soda"},{"amount":"300","unit":"gram","name":"sugar"},{"amount":"1","unit":null,"name":"egg"},{"amount":"1","unit":"teaspoon","name":"vanilla extract"},{"amount":"225","unit":"gram","name":"chocolate chips"}]
+  },
+  {
+    "name": "Creamy Mashed Potatoes", "description": "Rich mashed potatoes finished with cheese, bacon, and green onions.", "image": "seed-creamy-mashed-potatoes.webp",
+    "instructions": "Boil peeled, cut potatoes until tender. Dice and fry the bacon, warm the milk and mayonnaise, and shred the cheese. Drain and mash potatoes with the warm milk mixture and butter. Season, fold in cheese and bacon, and top with green onions.",
+    "ingredients": [{"amount":"1","unit":"kilogram","name":"potatoes"},{"amount":"200","unit":"milliliter","name":"milk"},{"amount":"200","unit":"milliliter","name":"mayonnaise"},{"amount":"100","unit":"gram","name":"cheese"},{"amount":"12","unit":"slice","name":"bacon"},{"amount":"3","unit":null,"name":"green onions"},{"amount":"2","unit":"tablespoon","name":"butter"}]
+  },
+  {
+    "name": "Croque Monsieur Bites", "description": "French ham and cheese sandwiches baked with creamy bechamel.", "image": "seed-croque-monsieur.webp",
+    "instructions": "Melt butter, whisk in flour and seasoning, then gradually add milk and cook until thick. Heat the oven to 350 F. Layer bread with mustard, bechamel, folded ham, and cheese. Top with bread, more sauce and cheese, bake 10 minutes, and broil briefly to brown.",
+    "ingredients": [{"amount":"50","unit":"gram","name":"butter"},{"amount":"50","unit":"gram","name":"flour"},{"amount":"1","unit":"liter","name":"milk"},{"amount":"12","unit":"slice","name":"bread"},{"amount":"2","unit":"tablespoon","name":"mustard"},{"amount":"12","unit":"slice","name":"ham"},{"amount":"80","unit":"gram","name":"Gruyere cheese"}]
+  },
+  {
+    "name": "French Toast", "description": "An easy stack of custardy, golden-brown breakfast toast.", "image": "seed-french-toast.webp",
+    "instructions": "Melt butter in a skillet over medium-low heat. Beat eggs and milk until smooth. Dip each bread slice briefly on both sides and let excess drip away. Cook until golden on both sides, adding butter between batches as needed. Serve with maple syrup.",
+    "ingredients": [{"amount":"2","unit":null,"name":"eggs"},{"amount":"1/2","unit":"cup","name":"milk"},{"amount":"5","unit":"slice","name":"bread"},{"amount":"2","unit":"tablespoon","name":"butter"},{"amount":"1/4","unit":"cup","name":"maple syrup"}]
+  },
+  {
+    "name": "Creamy Hummus", "description": "Smooth chickpea and tahini dip brightened with lemon and garlic.", "image": "seed-hummus.webp",
+    "instructions": "Simmer drained chickpeas with baking soda for 20 minutes, then rinse. Pulse garlic, lemon, and salt in a food processor and rest 10 minutes. Blend in tahini and ice water, then add chickpeas and cumin. Process until smooth while drizzling in olive oil; adjust lemon, salt, and water to taste.",
+    "ingredients": [{"amount":"1","unit":"can","name":"chickpeas"},{"amount":"1","unit":"teaspoon","name":"baking soda"},{"amount":"1/2","unit":"cup","name":"tahini"},{"amount":"1/4","unit":"cup","name":"lemon juice"},{"amount":"2","unit":"clove","name":"garlic"},{"amount":"1/4","unit":"teaspoon","name":"ground cumin"},{"amount":"1","unit":"tablespoon","name":"olive oil"}]
+  },
+  {
+    "name": "Homemade Lasagna", "description": "Layered lasagna with Bolognese, creamy filling, and browned cheese.", "image": "seed-lasagna.webp",
+    "instructions": "Heat the oven to 350 F. Spread meat sauce in a deep baking dish, then alternate pasta sheets, bechamel, meat sauce, and Parmesan, finishing with bechamel. Top with Parmesan and mozzarella and cover with foil. Bake 30 to 35 minutes, uncover to brown, then rest 10 minutes before slicing.",
+    "ingredients": [{"amount":"12","unit":null,"name":"lasagna noodles"},{"amount":"4","unit":"cup","name":"Bolognese sauce"},{"amount":"3","unit":"cup","name":"bechamel sauce"},{"amount":"1","unit":"cup","name":"Parmesan cheese"},{"amount":"2","unit":"cup","name":"mozzarella cheese"}]
+  },
+  {
+    "name": "Classic Meatloaf", "description": "A family-style beef meatloaf glazed with tangy tomato sauce.", "image": "seed-meatloaf.webp",
+    "instructions": "Heat the oven to 350 F. Combine beef, diced onion, torn bread, eggs, milk, mustard, ketchup, and seasonings, then shape in greased baking dishes. Bake 1 hour. Mix tomato soup, brown sugar, ketchup, and mustard for the glaze. Confirm a safe internal temperature, glaze, and bake 10 minutes more before resting.",
+    "ingredients": [{"amount":"4.5","unit":"pound","name":"ground beef"},{"amount":"1","unit":null,"name":"onion"},{"amount":"2","unit":"slice","name":"bread"},{"amount":"4","unit":null,"name":"eggs"},{"amount":"1/4","unit":"cup","name":"milk"},{"amount":"1","unit":"can","name":"tomato soup"},{"amount":"1/4","unit":"cup","name":"ketchup"},{"amount":"2","unit":"tablespoon","name":"mustard"}]
+  },
+  {
+    "name": "Naan Bread", "description": "Soft homemade flatbread brushed with melted butter.", "image": "seed-naan-bread.webp",
+    "instructions": "Stir yeast and sugar into warm milk and rest 5 minutes. Add flour and salt and knead to a soft dough. Oil lightly, cover, and rise 2 to 3 hours. Divide into 4 balls, roll thin, and bake on a lined tray at 350 F until cooked and lightly browned. Brush with butter.",
+    "ingredients": [{"amount":"3","unit":"cup","name":"all-purpose flour"},{"amount":"1","unit":"tablespoon","name":"active dry yeast"},{"amount":"2","unit":"tablespoon","name":"sugar"},{"amount":"1","unit":"cup","name":"milk"},{"amount":"2","unit":"tablespoon","name":"butter"},{"amount":"1.5","unit":"teaspoon","name":"salt"}]
+  },
+  {
+    "name": "Valencian Paella", "description": "Traditional Valencian rice with chicken, rabbit, beans, tomato, and saffron.", "image": "seed-paella.webp",
+    "instructions": "Brown chicken and rabbit in olive oil in a paella pan. Add beans, then tomato and paprika. Add water and simmer 20 minutes. Distribute rice evenly, add saffron and salt, and do not stir again. Cook on high 10 minutes, then medium-low 8 to 10 minutes. Rest covered for 5 minutes.",
+    "ingredients": [{"amount":"500","unit":"gram","name":"bomba rice"},{"amount":"1","unit":null,"name":"chicken"},{"amount":"500","unit":"gram","name":"rabbit"},{"amount":"150","unit":"gram","name":"green beans"},{"amount":"150","unit":"gram","name":"white beans"},{"amount":"2","unit":null,"name":"tomatoes"},{"amount":"1","unit":"tablespoon","name":"sweet paprika"},{"amount":"1","unit":"pinch","name":"saffron"}]
+  },
+  {
+    "name": "Paneer Tikka Masala", "description": "Grilled paneer and vegetables in a fragrant tomato curry.", "image": "seed-paneer-tikka-masala.webp",
+    "instructions": "Marinate paneer with half the spices and yogurt for 1 hour. Skewer with onion and bell pepper and roast at 400 F, turning until lightly crisp. Bloom cumin in oil, saute onion, ginger, and garlic, then add tomato puree and remaining spices. Stir in paneer and yogurt and simmer until thick.",
+    "ingredients": [{"amount":"250","unit":"gram","name":"paneer"},{"amount":"1","unit":null,"name":"onion"},{"amount":"1","unit":null,"name":"bell pepper"},{"amount":"200","unit":"milliliter","name":"tomato puree"},{"amount":"1","unit":"teaspoon","name":"chili powder"},{"amount":"1","unit":"teaspoon","name":"turmeric"},{"amount":"1","unit":"teaspoon","name":"coriander powder"},{"amount":"100","unit":"milliliter","name":"yogurt"},{"amount":"20","unit":"milliliter","name":"garlic paste"}]
+  },
+  {
+    "name": "Potato Leek Soup", "description": "A velvety blended soup of leeks, potatoes, stock, and cream.", "image": "seed-potato-leek-soup.webp",
+    "instructions": "Cook chopped leeks and potatoes in butter over medium-low heat until softened. Add stock, bay leaf, and white pepper and simmer until potatoes are tender. Remove the bay leaf, blend to your preferred consistency, and stir in cream and salt to taste.",
+    "ingredients": [{"amount":"3","unit":"tablespoon","name":"butter"},{"amount":"2","unit":null,"name":"leeks"},{"amount":"1","unit":"quart","name":"vegetable stock"},{"amount":"11","unit":"ounce","name":"potatoes"},{"amount":"1","unit":null,"name":"bay leaf"},{"amount":"3/4","unit":"cup","name":"heavy cream"},{"amount":"1/4","unit":"teaspoon","name":"white pepper"}]
+  },
+  {
+    "name": "Shakshouka", "description": "Eggs gently poached in a quick tomato and onion sauce.", "image": "seed-shakshouka.webp",
+    "instructions": "Peel and cube the tomatoes. Saute chopped onion in oil until translucent, then add tomatoes, cumin, paprika, salt, and pepper and cook until thick. Make wells and crack in the eggs. Cover and cook until whites are set and yolks reach your preferred doneness. Finish with chives.",
+    "ingredients": [{"amount":"5","unit":null,"name":"tomatoes"},{"amount":"5","unit":null,"name":"eggs"},{"amount":"1","unit":null,"name":"white onion"},{"amount":"2","unit":"tablespoon","name":"chives"},{"amount":"1","unit":"teaspoon","name":"ground cumin"},{"amount":"1","unit":"teaspoon","name":"sweet paprika"}]
+  }
+]

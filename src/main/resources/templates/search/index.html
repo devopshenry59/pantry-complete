@@ -3,13 +3,94 @@
 <head th:replace="fragments :: head"></head>
 
 <script>
+    const selectedIngredients = new Map();
+
     function addIngredient() {
-        selIngTextArea = document.getElementById("textAreaIngredients");
-        searchIng = document.getElementById("hiddeningredients");
-        selIngTextArea.value =  document.getElementById("ingredient_select").value + "\n" + selIngTextArea.value;
-        searchIng.value =  document.getElementById("hiddeningredients").value + "~~~" + document.getElementsByName("ingredient_select")[0].value;
-        document.getElementById("ingredient_select").value = "";
-        return;
+        const nameInput = document.getElementById("ingredient_select");
+        const valueInput = document.querySelector("input[name='ingredient_select']");
+        const ingredientId = valueInput ? valueInput.value : "";
+        const ingredientName = nameInput.value.trim();
+        const amountInput = document.getElementById("ingredientAmount");
+        const unitSelect = document.getElementById("ingredientUnit");
+        const amount = amountInput.value.trim();
+        const unitId = Number(unitSelect.value);
+        const unitName = unitSelect.options[unitSelect.selectedIndex].text.trim();
+
+        if (!ingredientId || !ingredientName) {
+            showSelectionMessage("Choose an ingredient first.");
+            return;
+        }
+        if (selectedIngredients.has(ingredientId)) {
+            showSelectionMessage(ingredientName + " is already selected.");
+            return;
+        }
+        if (!amount) {
+            showSelectionMessage("Enter how much " + ingredientName + " you have.");
+            amountInput.focus();
+            return;
+        }
+
+        selectedIngredients.set(ingredientId, {
+            ingredientId: Number(ingredientId),
+            name: ingredientName,
+            amount: amount,
+            unitId: unitId,
+            unitName: unitName
+        });
+        nameInput.value = "";
+        valueInput.value = "";
+        amountInput.value = "";
+        unitSelect.value = "0";
+        showSelectionMessage("");
+        renderSelectedIngredients();
+    }
+
+    function removeIngredient(ingredientId) {
+        selectedIngredients.delete(ingredientId);
+        renderSelectedIngredients();
+    }
+
+    function clearIngredients() {
+        selectedIngredients.clear();
+        showSelectionMessage("");
+        renderSelectedIngredients();
+    }
+
+    function showSelectionMessage(message) {
+        const messageElement = document.getElementById("ingredientSelectionMessage");
+        messageElement.textContent = message;
+        messageElement.hidden = !message;
+    }
+
+    function renderSelectedIngredients() {
+        const selectedList = document.getElementById("selectedIngredients");
+        const hiddenInput = document.getElementById("hiddeningredients");
+        const clearButton = document.getElementById("clearIngredients");
+        selectedList.replaceChildren();
+
+        selectedIngredients.forEach((ingredient, id) => {
+            const chip = document.createElement("span");
+            chip.className = "ingredient-chip";
+            const quantity = document.createElement("strong");
+            quantity.textContent = ingredient.amount + " " + ingredient.unitName;
+            chip.append(quantity, document.createTextNode(ingredient.name));
+
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.className = "ingredient-chip-remove";
+            removeButton.setAttribute("aria-label", "Remove " + ingredient.name);
+            removeButton.innerHTML = "&times;";
+            removeButton.addEventListener("click", () => removeIngredient(id));
+            chip.append(removeButton);
+            selectedList.append(chip);
+        });
+
+        hiddenInput.value = JSON.stringify(Array.from(selectedIngredients.values()).map(ingredient => ({
+            ingredientId: ingredient.ingredientId,
+            amount: ingredient.amount,
+            unitId: ingredient.unitId
+        })));
+        clearButton.hidden = selectedIngredients.size === 0;
     }
 </script>
 
@@ -22,30 +103,48 @@
 
 <div class="container body-content py-3">
     <h1>Advanced Search</h1>
-    <p>Add multiple ingredients to search recipes.</p>
+    <p>Tell us what you have to find recipes that fit your available quantities.</p>
 
     <div class="container">
         <form method="post" action="/list">
-            <div class="w-50 mb-3">
-                <div class="input-group">
+            <div class="search-builder mb-3">
+                <label class="form-label" for="ingredient_select">Ingredient</label>
+                <div class="input-group mb-3">
                     <select class="form-control basicAutoSelect" id="ingredient_select" name="ingredient_select"
                             placeholder="Enter ingredient to search"
                             data-url="/search/filter/"
                             data-noresults-text="No ingredients found."
                             autocomplete="off"></select>
-                    <button class="btn btn-outline-secondary" type="button" onclick="addIngredient()">Add</button>
+                </div>
+                <div class="row g-2 align-items-end">
+                    <div class="col-12 col-sm-5">
+                        <label class="form-label" for="ingredientAmount">Amount available</label>
+                        <input class="form-control" id="ingredientAmount" inputmode="decimal" placeholder="For example, 2 or 1/2">
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <label class="form-label" for="ingredientUnit">Unit</label>
+                        <select class="form-select" id="ingredientUnit">
+                            <option value="0">items</option>
+                            <option th:each="unit : ${units}" th:value="${unit.id}" th:text="${unit.name}"></option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-3 d-grid">
+                        <button class="btn btn-outline-secondary" type="button" onclick="addIngredient()">Add Ingredient</button>
+                    </div>
                 </div>
             </div>
-            <div class="w-50 mb-3">
-                <h5 class="text-muted">Ingredients</h5>
-                <div class="input-group mb-3">
-                    <textarea class="form-control" id="textAreaIngredients" rows="3" readonly></textarea>
+            <div class="search-builder mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="text-muted mb-0">Selected Ingredients</h5>
+                    <button id="clearIngredients" class="btn btn-sm btn-link" type="button" onclick="clearIngredients()" hidden>Clear all</button>
                 </div>
-                <div class="input-group mb-3">
-                    <button class="btn btn-primary" type="submit">Search</button>
+                <div id="selectedIngredients" class="selected-ingredients" aria-live="polite">
+                    <span class="selected-ingredients-empty">No ingredients selected yet.</span>
                 </div>
+                <p id="ingredientSelectionMessage" class="text-danger small mt-2 mb-0" role="alert" hidden></p>
+                <button class="btn btn-primary mt-3" type="submit">Find Matching Recipes</button>
             </div>
-            <input type="hidden" id="hiddeningredients" th:field="${searchDTO.ingredients}"/>
+            <input type="hidden" id="hiddeningredients" th:field="${searchDTO.criteria}"/>
         </form>
     </div>
 

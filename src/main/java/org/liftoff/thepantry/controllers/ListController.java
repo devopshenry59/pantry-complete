@@ -1,15 +1,20 @@
 package org.liftoff.thepantry.controllers;
 
-import org.liftoff.thepantry.data.IngredientRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.liftoff.thepantry.data.IngredientSearchCriterion;
 import org.liftoff.thepantry.data.RecipeIngredientRepository;
 import org.liftoff.thepantry.data.RecipeRepository;
 import org.liftoff.thepantry.data.SearchDTO;
-import org.liftoff.thepantry.models.Ingredient;
+import org.liftoff.thepantry.data.UnitRepository;
 import org.liftoff.thepantry.models.Recipe;
 import org.liftoff.thepantry.models.RecipeIngredient;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.liftoff.thepantry.models.Unit;
+import org.liftoff.thepantry.services.QuantityNormalizationService;
+import org.liftoff.thepantry.services.QuantityNormalizationService.NormalizedQuantity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -17,23 +22,35 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("list")
 public class ListController {
 
-    @Autowired
-    private RecipeRepository recipeRepository;
+    private final RecipeRepository recipeRepository;
+    private final RecipeIngredientRepository recipeIngredientRepository;
+    private final UnitRepository unitRepository;
+    private final QuantityNormalizationService quantityNormalizationService;
+    private final ObjectMapper objectMapper;
 
-    @Autowired
-    private IngredientRepository ingredientRepository;
-
-    @Autowired
-    private RecipeIngredientRepository recipeIngredientRepository;
+    public ListController(RecipeRepository recipeRepository,
+                          RecipeIngredientRepository recipeIngredientRepository,
+                          UnitRepository unitRepository,
+                          QuantityNormalizationService quantityNormalizationService,
+                          ObjectMapper objectMapper) {
+        this.recipeRepository = recipeRepository;
+        this.recipeIngredientRepository = recipeIngredientRepository;
+        this.unitRepository = unitRepository;
+        this.quantityNormalizationService = quantityNormalizationService;
+        this.objectMapper = objectMapper;
+    }
 
     @GetMapping("")
     public String index(Model model) {
@@ -43,51 +60,116 @@ public class ListController {
     }
 
     @PostMapping()
+    @Transactional(readOnly = true)
     public String searchRecipe(@ModelAttribute @Valid SearchDTO searchDTO, Model model, Errors errors) {
+        List<PreparedCriterion> criteria;
+        try {
+            criteria = prepareCriteria(searchDTO.getCriteria());
+        } catch (IllegalArgumentException e) {
+            return renderResults(model, new ArrayList<>(), 0, e.getMessage());
+        }
 
-        System.out.println("------------- In ListController - search");
-        System.out.println("Search text = " + searchDTO.getIngredients());
-        String[] text2search = searchDTO.getIngredients().split("~~~");
-        ArrayList<Integer> ingredientsArray = new ArrayList();
-        ArrayList<Recipe> recipes = new ArrayList<>();
+        if (criteria.isEmpty()) {
+            return renderResults(model, new ArrayList<>(), 0,
+                    "Choose at least one ingredient and enter how much you have.");
+        }
 
-        Iterator searchIterator = Arrays.stream(text2search).iterator();
-        while(searchIterator.hasNext()) {
-            String searchText = (String) searchIterator.next();
-            System.out.println(" Searching for " + searchText);
-            if (searchText != null && searchText.length()>0) {
-                   ingredientsArray.add(Integer.valueOf(searchText));
-                   System.out.println(" added text to search " + searchText + " " + Integer.valueOf(searchText));
-                   System.out.println(" array size = " + ingredientsArray.size());
+        List<Integer> ingredientIds = criteria.stream()
+                .map(PreparedCriterion::getIngredientId)
+                .collect(Collectors.toList());
+        List<Recipe> recipes = recipeIngredientRepository.findRecipesContainingAllIngredients(
+                        ingredientIds, ingredientIds.size()).stream()
+                .filter(recipe -> hasEnoughOfEveryIngredient(recipe, criteria))
+                .collect(Collectors.toList());
+
+        return renderResults(model, recipes, criteria.size(), null);
+    }
+
+    private String renderResults(Model model, List<Recipe> recipes, int criterionCount, String message) {
+        model.addAttribute("banner", "search");
+        model.addAttribute("recipes", recipes);
+        model.addAttribute("selectedIngredientCount", criterionCount);
+        if (message != null) {
+            model.addAttribute("message", message);
+        }
+        return "list/index";
+    }
+
+    private List<PreparedCriterion> prepareCriteria(String rawCriteria) {
+        if (rawCriteria == null || rawCriteria.isBlank()) {
+            return new ArrayList<>();
+        }
+
+        List<IngredientSearchCriterion> submittedCriteria;
+        try {
+            submittedCriteria = objectMapper.readValue(rawCriteria,
+                    new TypeReference<List<IngredientSearchCriterion>>() { });
+        } catch (IOException e) {
+            throw new IllegalArgumentException("The ingredient quantities could not be read. Please try again.");
+        }
+
+        Set<Integer> seenIngredientIds = new LinkedHashSet<>();
+        List<PreparedCriterion> preparedCriteria = new ArrayList<>();
+        for (IngredientSearchCriterion criterion : submittedCriteria) {
+            if (criterion.getIngredientId() <= 0 || !seenIngredientIds.add(criterion.getIngredientId())) {
+                continue;
+            }
+
+            Unit unit = null;
+            if (criterion.getUnitId() > 0) {
+                unit = unitRepository.findById(criterion.getUnitId())
+                        .orElseThrow(() -> new IllegalArgumentException("One selected unit is no longer available."));
+            }
+            NormalizedQuantity availableQuantity = quantityNormalizationService
+                    .normalize(criterion.getAmount(), unit)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Use a numeric amount or fraction with a supported unit."));
+            preparedCriteria.add(new PreparedCriterion(criterion.getIngredientId(), availableQuantity));
+        }
+        return preparedCriteria;
+    }
+
+    private boolean hasEnoughOfEveryIngredient(Recipe recipe, List<PreparedCriterion> criteria) {
+        for (PreparedCriterion criterion : criteria) {
+            List<RecipeIngredient> recipeIngredients = recipeIngredientRepository
+                    .findByRecipeIdAndIngredientId(recipe.getId(), criterion.getIngredientId());
+            if (recipeIngredients.isEmpty()) {
+                return false;
+            }
+
+            RecipeIngredient requirement = recipeIngredients.get(0);
+            Optional<NormalizedQuantity> normalizedRequirement = quantityNormalizationService
+                    .normalize(requirement.getAmount(), requirement.getUnit());
+            if (normalizedRequirement.isEmpty()
+                    || normalizedRequirement.get().getDimension() != criterion.getAvailableQuantity().getDimension()) {
+                return false;
+            }
+
+            java.math.BigDecimal requiredAmount = requirement.getNormalizedAmount() == null
+                    ? normalizedRequirement.get().getAmount()
+                    : requirement.getNormalizedAmount();
+            if (criterion.getAvailableQuantity().getAmount().compareTo(requiredAmount) < 0) {
+                return false;
             }
         }
-        System.out.println("List of ingre to search = " + ingredientsArray);
-        Iterable ingreIterable = ingredientRepository.findAllById(ingredientsArray);
-        Iterator ingreIterator = ingreIterable.iterator();
+        return true;
+    }
 
-        List<Integer> listOfSelectedRecipes = new ArrayList<>();
-        while (ingreIterator.hasNext()) {
-            System.out.println(" searching for ingredients");
-            Ingredient ing = (Ingredient) ingreIterator.next();
-            System.out.println("Found ingre = " + ing.getName());
+    private static class PreparedCriterion {
+        private final int ingredientId;
+        private final NormalizedQuantity availableQuantity;
 
-          List<RecipeIngredient> recipeIngredientList = recipeIngredientRepository.findByIngredientId(ing.getId());
-          int nofRecipeIngredients = recipeIngredientList.size();
-
-          for(int i = 0; i < nofRecipeIngredients; i++) {
-              RecipeIngredient ri = recipeIngredientList.get(i);
-              System.out.println(" Got recipe " + ri.getRecipe().getName());
-              if (!listOfSelectedRecipes.contains(ri.getRecipe().getId())) {
-                  // Keep a list of selected recipes to avoid duplicates.
-                  System.out.println(" added to return array");
-                  recipes.add(ri.getRecipe());
-                  listOfSelectedRecipes.add(ri.getRecipe().getId());
-              }
-          }
+        private PreparedCriterion(int ingredientId, NormalizedQuantity availableQuantity) {
+            this.ingredientId = ingredientId;
+            this.availableQuantity = availableQuantity;
         }
-        System.out.println("Return map contains " + recipes.size());
-        model.addAttribute("banner", "search");
-        model.addAttribute("recipes",recipes);
-        return "list/index";
+
+        private int getIngredientId() {
+            return ingredientId;
+        }
+
+        private NormalizedQuantity getAvailableQuantity() {
+            return availableQuantity;
+        }
     }
 }

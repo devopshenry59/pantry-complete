@@ -6,6 +6,7 @@ body{
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 footer {
@@ -29,6 +30,106 @@ footer {
 .card-animation:hover {
     transform: scale(1.05);
 }
+.navbar-logo {
+    display: block;
+    width: auto;
+    height: 50px;
+}
+
+.pantry-banner {
+    min-height: 350px;
+    padding: 3rem;
+    background-position: center;
+    background-size: cover;
+}
+
+.pantry-banner .mask {
+    width: min(100%, 760px);
+}
+
+.recipe-card-image {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+}
+
+.recipe-card-placeholder {
+    display: grid;
+    width: 100%;
+    height: 210px;
+    place-items: center;
+    color: #6c757d;
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #f4f1e8, #e4e8df);
+}
+
+.recipe-detail-image {
+    display: block;
+    width: 100%;
+    max-height: 520px;
+    object-fit: cover;
+}
+
+.responsive-form-width {
+    width: 50%;
+}
+
+.search-builder {
+    width: min(100%, 760px);
+}
+
+.selected-ingredients {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    min-height: 3.25rem;
+    padding: .65rem;
+    border: 1px solid #ced4da;
+    border-radius: .5rem;
+    background: #fff;
+}
+
+.selected-ingredients-empty {
+    align-self: center;
+    color: #6c757d;
+}
+
+.selected-ingredients:has(.ingredient-chip) .selected-ingredients-empty {
+    display: none;
+}
+
+.ingredient-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .45rem .35rem .7rem;
+    border-radius: 999px;
+    color: #fff;
+    background: #445c4f;
+}
+
+.ingredient-chip strong {
+    padding-right: .15rem;
+}
+
+.ingredient-chip-remove {
+    display: grid;
+    width: 1.4rem;
+    height: 1.4rem;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    color: inherit;
+    font-size: 1.2rem;
+    line-height: 1;
+    background: rgba(255, 255, 255, .18);
+}
+
+.ingredient-chip-remove:hover,
+.ingredient-chip-remove:focus-visible {
+    background: rgba(255, 255, 255, .32);
+}
 
 .bg-info {
       margin-right:-15px;
@@ -40,191 +141,114 @@ footer {
 
 }
 #simple-search{
-    width: 333px;
+    width: min(100%, 333px);
 }
 
-//vars
+@media (hover: hover) and (pointer: fine) {
+  .card-animation:hover {
+      transform: translateY(-4px);
+  }
+}
 
+@media (max-width: 767.98px) {
+  h1 {
+      font-size: calc(1.55rem + 1vw);
+  }
 
+  .container,
+  .container-fluid {
+      --bs-gutter-x: 1.5rem;
+  }
 
- body{margin-top:20px;}
-.schedule-table table thead tr {
-background: #86d4f5;
+  .pantry-banner {
+      min-height: 290px;
+      padding: 1.25rem .75rem;
+  }
+
+  .pantry-banner .h-100 {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+  }
+
+  .pantry-banner h4 {
+      font-size: 1rem;
+      line-height: 1.5;
+  }
+
+  .responsive-form-width,
+  .body-content .w-50 {
+      width: 100% !important;
+  }
+
+  .recipe-card-image {
+      height: 230px;
+  }
+
+  .recipe-card-placeholder {
+      height: 230px;
+  }
+
+  .card-animation:hover {
+      transform: none;
+  }
+
+  .body-content {
+      padding-top: 1.25rem !important;
+      padding-bottom: 1.25rem !important;
+  }
+
+  .body-content .input-group-text.w-25 {
+      width: 100% !important;
+      border-radius: .375rem .375rem 0 0;
+  }
+
+  .body-content .input-group:has(.input-group-text.w-25) {
+      align-items: stretch;
+      flex-direction: column;
+  }
+
+  .body-content .input-group:has(.input-group-text.w-25) > .form-control,
+  .body-content .input-group:has(.input-group-text.w-25) > .form-select {
+      width: 100%;
+      border-radius: 0 0 .375rem .375rem;
+  }
+
+  .body-content .img-thumbnail.w-25,
+  .body-content button.w-25 {
+      width: 100% !important;
+  }
+
+  .modal-dialog {
+      margin: .75rem;
+  }
+
+  footer .nav-link {
+      padding-left: .5rem !important;
+      padding-right: .5rem !important;
+  }
 }
-.schedule-table table thead th {
-padding: 25px 50px;
-color: #fff;
-text-align: center;
-font-size: 20px;
-font-weight: 800;
-position: relative;
-border: 0;
-}
-.schedule-table table thead th:before {
-content: "";
-width: 3px;
-height: 35px;
-background: rgba(255, 255, 255, 0.2);
-position: absolute;
-right: -1px;
-top: 50%;
-transform: translateY(-50%);
-}
-.schedule-table table thead th.last:before {
-content: none;
-}
-.schedule-table table tbody td {
-vertical-align: middle;
-border: 1px solid #e2edf8;
-font-weight: 500;
-padding: 30px;
-text-align: center;
-}
-.schedule-table table tbody td.day {
-font-size: 22px;
-font-weight: 600;
-background: #f0f1f3;
-border: 1px solid #e4e4e4;
-position: relative;
-transition: all 0.3s linear 0s;
-min-width: 165px;
-}
-.schedule-table table tbody td.active {
-position: relative;
-z-index: 10;
-transition: all 0.3s linear 0s;
-min-width: 165px;
-}
-.schedule-table table tbody td.active h4 {
-font-weight: 700;
-color: #000;
-font-size: 20px;
-margin-bottom: 5px;
-}
-.schedule-table table tbody td.active p {
-font-size: 16px;
-line-height: normal;
-margin-bottom: 0;
-}
-.schedule-table table tbody td .hover h4 {
-font-weight: 700;
-font-size: 20px;
-color: #ffffff;
-margin-bottom: 5px;
-}
-.schedule-table table tbody td .hover p {
-font-size: 16px;
-margin-bottom: 5px;
-color: #ffffff;
-line-height: normal;
-}
-.schedule-table table tbody td .hover span {
-color: #ffffff;
-font-weight: 600;
-font-size: 18px;
-}
-.schedule-table table tbody td.active::before {
-position: absolute;
-content: "";
-min-width: 100%;
-min-height: 100%;
-transform: scale(0);
-top: 0;
-left: 0;
-z-index: -1;
-border-radius: 0.25rem;
-transition: all 0.3s linear 0s;
-}
-.schedule-table table tbody td .hover {
-position: absolute;
-left: 50%;
-top: 50%;
-width: 120%;
-height: 120%;
-transform: translate(-50%, -50%) scale(0.8);
-z-index: 99;
-background: #86d4f5;
-border-radius: 0.25rem;
-padding: 25px 0;
-visibility: hidden;
-opacity: 0;
-transition: all 0.3s linear 0s;
-}
-.schedule-table table tbody td.active:hover .hover {
-transform: translate(-50%, -50%) scale(1);
-visibility: visible;
-opacity: 1;
-}
-.schedule-table table tbody td.day:hover {
-background: #86d4f5;
-color: #fff;
-border: 1px solid #86d4f5;
-}
-@media screen and (max-width: 1199px) {
-.schedule-table {
-display: block;
-width: 100%;
-overflow-x: auto;
-}
-.schedule-table table thead th {
-padding: 25px 40px;
-}
-.schedule-table table tbody td {
-padding: 20px;
-}
-.schedule-table table tbody td.active h4 {
-font-size: 18px;
-}
-.schedule-table table tbody td.active p {
-font-size: 15px;
-}
-.schedule-table table tbody td.day {
-font-size: 20px;
-}
-.schedule-table table tbody td .hover {
-padding: 15px 0;
-}
-.schedule-table table tbody td .hover span {
-font-size: 17px;
-}
-}
-@media screen and (max-width: 991px) {
-.schedule-table table thead th {
-font-size: 18px;
-padding: 20px;
-}
-.schedule-table table tbody td.day {
-font-size: 18px;
-}
-.schedule-table table tbody td.active h4 {
-font-size: 17px;
-}
-}
-@media screen and (max-width: 767px) {
-.schedule-table table thead th {
-padding: 15px;
-}
-.schedule-table table tbody td {
-padding: 15px;
-}
-.schedule-table table tbody td.active h4 {
-font-size: 16px;
-}
-.schedule-table table tbody td.active p {
-font-size: 14px;
-}
-.schedule-table table tbody td .hover {
-padding: 10px 0;
-}
-.schedule-table table tbody td.day {
-font-size: 18px;
-}
-.schedule-table table tbody td .hover span {
-font-size: 15px;
-}
-}
-@media screen and (max-width: 575px) {
-.schedule-table table tbody td.day {
-min-width: 135px;
-}
+
+@media (max-width: 575.98px) {
+  .navbar-logo {
+      height: 42px;
+  }
+
+  .recipe-card-image {
+      height: 220px;
+  }
+
+  .recipe-card-placeholder {
+      height: 220px;
+  }
+
+  .pantry-banner .btn {
+      font-size: .875rem;
+  }
+
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_length {
+      float: none;
+      text-align: left;
+      margin-bottom: .75rem;
+  }
 }

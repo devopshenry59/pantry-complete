@@ -1,10 +1,15 @@
 package org.liftoff.thepantry.models;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Recipe extends AbstractEntity {
@@ -21,14 +26,12 @@ public class Recipe extends AbstractEntity {
 
     private String image;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
 
-
-    @OneToOne
-    @JoinColumn(name = "id")
-    private RecipeIngredient recipeIngredient;
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<RecipeIngredient> recipeIngredients = new ArrayList<>();
 
     public Recipe() {
     }
@@ -42,7 +45,6 @@ public class Recipe extends AbstractEntity {
         this.user = user;
     }
 
-    // getters and setters
     public String getName() {
         return name;
     }
@@ -72,7 +74,7 @@ public class Recipe extends AbstractEntity {
     }
 
     public void setImage(String image) {
-        if (image != null && image.isEmpty()) {
+        if (image != null && image.isBlank()) {
             image = null;
         }
         this.image = image;
@@ -84,5 +86,13 @@ public class Recipe extends AbstractEntity {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<RecipeIngredient> getRecipeIngredients() {
+        return recipeIngredients;
+    }
+
+    public void setRecipeIngredients(List<RecipeIngredient> recipeIngredients) {
+        this.recipeIngredients = recipeIngredients;
     }
 }

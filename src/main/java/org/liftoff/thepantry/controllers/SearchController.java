@@ -4,7 +4,11 @@ package org.liftoff.thepantry.controllers;
 import org.json.JSONArray;
 import org.liftoff.thepantry.data.IngredientRepository;
 import org.liftoff.thepantry.data.SearchDTO;
+import org.liftoff.thepantry.data.UnitRepository;
 import org.liftoff.thepantry.models.Ingredient;
+import org.liftoff.thepantry.models.Unit;
+import org.liftoff.thepantry.services.QuantityNormalizationService;
+import org.springframework.data.domain.Sort;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -25,11 +29,20 @@ public class SearchController {
     @Autowired
     private IngredientRepository ingredientRepository;
 
+    @Autowired
+    private UnitRepository unitRepository;
+
+    @Autowired
+    private QuantityNormalizationService quantityNormalizationService;
+
     @GetMapping
     public String index(Model model) {
         model.addAttribute("banner", "search");
         System.out.println("------------- In SearchController - index");
         model.addAttribute("ingredients", ingredientRepository.findAll());
+        model.addAttribute("units", unitRepository.findAll(Sort.by(Sort.Direction.ASC, "name")).stream()
+                .filter(quantityNormalizationService::supports)
+                .toArray(Unit[]::new));
         model.addAttribute(new SearchDTO());
         return "search/index";
     }
